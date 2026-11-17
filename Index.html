@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>آزمون تعاملی تشکیل بانک داده</title>
+<style>
+:root{--ink:#f4f7ff;--mute:#c9d2ee;--good:#3ddc97;--bad:#ff6b8a;--gold:#ffd166;--edge:rgba(255,255,255,.32);--glass:rgba(255,255,255,.12);--bg1:#0b1030;--bg2:#3b2a8f;--bg3:#0e6a8f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{font-family:Tahoma,system-ui,sans-serif;color:var(--ink);background:var(--bg1);overflow:hidden;line-height:1.8;user-select:none}
+.bg{position:fixed;inset:0;z-index:0;background:radial-gradient(1200px 800px at 80% -10%,var(--bg2) 0%,transparent 60%),radial-gradient(900px 700px at 0% 100%,var(--bg3) 0%,transparent 55%),var(--bg1)}
+#app{position:relative;z-index:2;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:10px 12px;gap:10px;max-width:980px;margin:0 auto}
+.glass{background:var(--glass);backdrop-filter:blur(20px) saturate(170%);border:1px solid var(--edge);border-radius:24px;box-shadow:0 10px 40px rgba(5,8,40,.45)}
+header.top{display:flex;align-items:center;gap:10px;padding:8px 14px;min-height:54px}
+.logo{width:40px;height:40px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;font-size:20px;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid var(--edge)}
+.ttl{font-weight:800;font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{min-height:0;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:2px;display:none}
+.screen.on{display:block}
+footer.credit{padding:8px 14px;text-align:center;font-size:14px;color:var(--mute)}
+.hero{max-width:600px;margin:1vh auto 0;padding:24px 22px;text-align:center}
+.hero h1{margin:6px 0 2px;font-size:22px;color:#fff}
+.hero .sub{margin:2px 0 6px;color:var(--mute);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0 14px}
+.chip{background:rgba(255,255,255,.2);border:1px solid var(--edge);border-radius:14px;padding:4px 12px;font-size:13px}
+input.name{width:100%;max-width:380px;padding:13px 16px;border-radius:16px;border:1.5px solid var(--edge);background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:16px;text-align:center;outline:none;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border:0;border-radius:16px;font:inherit;font-weight:800;font-size:16px;color:#14163a;cursor:pointer;background:linear-gradient(135deg,#ffe28a,#ff9ecb);box-shadow:0 8px 22px rgba(255,158,203,.45);transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn.big{min-height:60px;font-size:19px;margin-top:10px}
+.qcard{padding:18px;margin-bottom:10px}
+.qmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tag{font-size:12px;padding:2px 12px;border-radius:99px;background:rgba(124,156,255,.35);border:1px solid rgba(255,255,255,.3)}
+.qtext{font-size:18px;font-weight:700;line-height:1.8;margin-bottom:15px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:center;text-align:right;width:100%;padding:12px 14px;min-height:56px;border-radius:16px;border:1.5px solid var(--edge);color:var(--ink);font:inherit;font-size:15.5px;cursor:pointer;background:rgba(255,255,255,.10);transition:.2s}
+.opt .k{flex:0 0 34px;height:34px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:14px;background:#ff7eb6;color:#2b0a1a}
+.opt.ok{background:rgba(61,220,151,.3)!important;border-color:var(--good)}
+.opt.no{background:rgba(255,107,138,.3)!important;border-color:var(--bad)}
+.fb{margin-top:14px;padding:14px 16px;border-radius:18px;border:1.5px solid;animation:in .3s}
+.fb.good{background:rgba(61,220,151,.18);border-color:var(--good)}
+
+.fb.bad{background:rgba(255,107,138,.18);border-color:var(--bad)}
+.nextrow{padding:10px 0 2px;display:flex;justify-content:center}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(5,8,30,.85);display:none;place-items:center;padding:14px}
+.modal.on{display:grid}
+.mbox{width:min(900px,100%);max-height:90dvh;overflow:auto;padding:18px;background:rgba(24,26,70,.98);border-radius:20px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+td,th{padding:8px;border-bottom:1px solid var(--edge);text-align:right}
+th{background:rgba(255,255,255,.1)}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div id="app">
+  <header class="top glass">
+    <div class="logo" id="logo" title="مدیریت">📊</div>
+    <div class="ttl" id="hTitle">آزمون بانک داده</div>
+  </header>
+  <main>
+    <section class="screen on" id="sWelcome">
+      <div class="hero glass">
+        <h1 id="wTitle">آزمون تعاملی تشکیل بانک داده</h1>
+        <div class="sub">ارائه خدمات رایانه‌ای - پایه دهم</div>
+        <div class="chips" id="wChips"></div>
+        <input id="nameIn" class="name" placeholder="نام و نام خانوادگی خود را بنویسید">
+        <div class="msg" id="nameMsg" style="color:#ffc0cf;margin:10px 0;height:20px;"></div>
+        <button class="btn big" id="startBtn">🚀 شروع آزمون</button>
+      </div>
+    </section>
+    <section class="screen" id="sQuiz">
+      <div class="qcard glass" id="qcard"></div>
+    </section>
+    <section class="screen" id="sRes"><div class="hero glass" id="resBox" style="max-width:760px;text-align:center;"></div></section>
+  </main>
+  <footer class="credit glass">👩‍🏫 هنرآموز: <b>مارال ضیاءظریفی</b></footer>
+</div>
+<div class="modal" id="modal"><div class="mbox glass" id="mbox"></div></div>
+
+<script>
+var CONFIG = { scoreMax: 20, adminPin: '1234', storageKey: 'quiz_bank_data_v1' };
+var MCQ = [
+ {q:"کدام نرم‌افزار برای ساخت بانک داده استفاده می‌شود؟", o:["Word", "Excel", "Photoshop", "Chrome"], a:1, w:"اکسل یک نرم‌افزار صفحه گسترده است که برای بانک داده استفاده می‌شود."},
+ {q:"پسوند فایل‌های اکسل چیست؟", o:[".docx", ".txt", ".xlsx", ".jpg"], a:2, w:"فایل‌های اکسل با پسوند xlsx. ذخیره می‌شوند."},
+ {q:"برای ثبت کد ملی به صورت متن از چه علامتی استفاده می‌کنیم؟", o:["علامت سوال", "آپوستروف", "ستاره", "هشتگ"], a:1, w:"با گذاشتن آپوستروف قبل از عدد، اکسل آن را به صورت متن در نظر می‌گیرد."},
+ {q:"برای جمع زدن اعداد از چه تابعی استفاده می‌کنیم؟", o:["SUM", "COUNT", "IF", "MAX"], a:0, w:"تابع SUM برای جمع زدن اعداد استفاده می‌شود."},
+ {q:"کدام گزینه برای تغییر جهت کاربرگ به راست به چپ است؟", o:["Home", "Insert", "Page Layout", "View"], a:2, w:"این دکمه در زبانه Page Layout قرار دارد."},
+ {q:"کدام نوع داده برای نمایش قیمت مناسب است؟", o:["Text", "Currency", "Date", "Time"], a:1, w:"قالب Currency برای نمایش واحد پولی استفاده می‌شود."},
+ {q:"برای انتخاب چند سلول مجاور از چه کلیدی استفاده می‌کنیم؟", o:["Alt", "Shift", "Ctrl", "Tab"], a:1, w:"کلید Shift به همراه کلیدهای جهت‌دار."},
+ {q:"دکمه AutoFill چه کاری انجام می‌دهد؟", o:["پاک کردن سلول", "کپی کردن", "تکمیل خودکار", "جمع زدن"], a:2, w:"با کشیدن مربع گوشه سلول، داده‌ها تکمیل می‌شوند."},
+ {q:"هر فرمول در اکسل با چه علامتی شروع می‌شود؟", o:["+", "-", "=", "@"], a:2, w:"فرمول‌ها همیشه با علامت مساوی شروع می‌شوند."},
+ {q:"کدام ابزار متن طولانی را در چند سطر می‌شکند؟", o:["Merge", "Wrap Text", "Format Painter", "Freeze Panes"], a:1, w:"ابزار Wrap Text این کار را انجام می‌دهد."},
+ {q:"خطای ##### نشانه چیست؟", o:["فرمول اشتباه", "کم بودن عرض سلول", "نوع داده اشتباه", "حذف سلول"], a:1, w:"عرض سلول برای نمایش نتیجه کافی نیست."},
+ {q:"به هر سطر در جدول اطلاعاتی چه می‌گویند؟", o:["فیلد", "رکورد", "سلول", "کاربرگ"], a:1, w:"هر سطر یک رکورد است."},
+ {q:"برای تبدیل محدوده به جدول پویا از کدام گزینه استفاده می‌کنیم؟", o:["Format as Table", "Cell Styles", "Conditional Formatting", "Filter"], a:0, w:"از زبانه Home و بخش Styles."},
+
+{q:"برای ثابت نگه داشتن سطر عنوان از چه ابزاری استفاده می‌کنیم؟", o:["Freeze Panes", "Split", "Hide", "Group"], a:0, w:"در زبانه View قرار دارد."},
+ {q:"برای بررسی شرط و انتخاب یکی از دو مقدار از چه تابعی استفاده می‌کنیم؟", o:["SUM", "COUNT", "IF", "TODAY"], a:2, w:"تابع IF برای شرط‌هاست."}
+];
+
+var STATE={name:'',items:[],i:0,pts:0};
+function $(id){return document.getElementById(id)}
+function show(id){['sWelcome','sQuiz','sRes'].forEach(s=>$(s).classList.toggle('on',s===id));}
+function buildItems(){ 
+  // اصلاح باگ: کپی کردن آرایه و مرتب‌سازی تصادفی به روش مطمئن
+  var arr = MCQ.slice();
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  return arr; 
+}
+function renderQ(){
+  var it=STATE.items[STATE.i];
+  if(!it){finish();return;}
+  var html='<div class="qmeta"><span class="tag">سؤال '+(STATE.i+1)+' از '+STATE.items.length+'</span></div>';
+  html+='<div class="qtext">'+it.q+'</div><div class="opts">';
+  it.o.forEach((o,i)=>{
+    html+='<button class="opt" onclick="answer('+i+')"><span class="k">'+['الف','ب','ج','د'][i]+'</span><span>'+o+'</span></button>';
+  });
+  html+='</div><div id="fb"></div>';
+  $('qcard').innerHTML=html;
+}
+function answer(idx){
+  var it=STATE.items[STATE.i];
+  var opts=$('qcard').querySelectorAll('.opt');
+  opts.forEach(o=>o.disabled=true);
+  var ok = idx===it.a;
+  if(ok){STATE.pts+=1; opts[idx].classList.add('ok');}
+  else{opts[it.a].classList.add('ok'); opts[idx].classList.add('no');}
+  var fb=$('fb');
+  fb.className='fb '+(ok?'good':'bad');
+  fb.innerHTML='<h4>'+(ok?'✅ درست!':'❌ نادرست')+'</h4><div style="font-size:14px">'+it.w+'</div>';
+  $('qcard').innerHTML+='<div class="nextrow"><button class="btn" onclick="nextQ()">'+(STATE.i+1<STATE.items.length?'بعدی':'پایان')+'</button></div>';
+}
+function nextQ(){STATE.i++; if(STATE.i>=STATE.items.length) finish(); else { renderQ(); $('sQuiz').scrollTop=0; }}
+function finish(){
+  var pct=STATE.pts/STATE.items.length;
+  var score=Math.round(pct*CONFIG.scoreMax);
+  
+  var db = JSON.parse(localStorage.getItem(CONFIG.storageKey) || '[]');
+  db.push({ name: STATE.name, score: score, date: new Date().toLocaleString('fa-IR') });
+  localStorage.setItem(CONFIG.storageKey, JSON.stringify(db));
+
+  $('resBox').innerHTML='<h2>🎉 آزمون تمام شد</h2><p style="font-size:24px">نمره شما: '+score+' از '+CONFIG.scoreMax+'</p><p>'+STATE.name+' عزیز، تلاش خوبی داشتی!</p><button class="btn" style="margin-top:20px;" onclick="location.reload()">بازگشت</button>';
+  show('sRes');
+}
+$('startBtn').onclick=function(){
+  var n=$('nameIn').value.trim();
+  if(n.length<4){$('nameMsg').innerText='لطفا نام کامل بنویسید.';return;}
+  
+  var db = JSON.parse(localStorage.getItem(CONFIG.storageKey) || '[]');
+  if(db.find(x => x.name === n)) {
+    $('nameMsg').innerText='❌ شما قبلا در آزمون شرکت کرده‌اید!'; return;
+  }
+
+  $('nameMsg').innerText='';
+  STATE.name=n; STATE.items=buildItems(); STATE.i=0; STATE.pts=0;
+  show('sQuiz'); renderQ();
+};
+$('wChips').innerHTML='<span class="chip">'+MCQ.length+' سؤال</span><span class="chip">نمره از '+CONFIG.scoreMax+'</span>';
+
+// پنل مدیریت
+var clicks=0;
+$('logo').onclick=function(){
+  clicks++;
+  if(clicks>=5){
+    clicks=0;
+    var pin=prompt('رمز مدیریت را وارد کنید:');
+    if(pin===CONFIG.adminPin){
+      var db = JSON.parse(localStorage.getItem(CONFIG.storageKey) || '[]');
+      var html='<h3>نتایج هنرجویان</h3>';
+      if(db.length===0) html+='<p>هنوز کسی آزمون نداده است.</p>';
+      else {
+        html+='<table><tr><th>نام</th><th>نمره</th><th>زمان</th></tr>';
+        db.forEach(r => { html+='<tr><td>'+r.name+'</td><td>'+r.score+'</td><td>'+r.date+'</td></tr>'; });
+        html+='</table>';
+        html+='<button class="btn" style="margin-top:15px; background:#ff6b8a; color:white;" onclick="clearData()">🗑️ پاک کردن همه نتایج</button>';
+
+}
+      html+='<br><button class="btn" style="margin-top:15px" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">بستن</button>';
+      $('mbox').innerHTML=html;
+      $('modal').classList.add('on');
+    } else {
+      alert('رمز اشتباه است');
+    }
+  }
+};
+function clearData(){
+  if(confirm('آیا مطمئن هستید؟ همه نتایج پاک می‌شوند و بچه‌ها می‌توانند دوباره آزمون بدهند.')){
+    localStorage.removeItem(CONFIG.storageKey);
+    location.reload();
+  }
+}
+</script>
+</body>
+</html>
